@@ -1,9 +1,10 @@
 import requests
 
+
 def findByFilter(domain, increment, getCount, dpIncrement):
 
     articles = []
-    flags = 'keyword_s,domainAllCode_s,fr_abstract_s,domain_s'
+    flags = 'halId_s,*_title_s,*_subTitle_s,*_keyword_s,*_abstract_s,primaryDomain_s,domainAllCode_s,publicationDateY_i,docType_s'
 
     filter = False
 
@@ -21,42 +22,20 @@ def findByFilter(domain, increment, getCount, dpIncrement):
             if getCount:
                 return count
 
-            print('ETA : ' + str(increment) + '/' + str(count))
-
             for article in data['docs']:
-                if ('keyword_s' in article) and ('fr_abstract_s' in article):
-                    article['keyword_s'] = [x.lower() for x in article['keyword_s']]
-                    article['fr_abstract_s'][0] = article['fr_abstract_s'][0].lower()
+                articles.append(article)
 
-                    kw_in_abstract = [a for a in article['keyword_s'] if a in article['fr_abstract_s'][0]]
-                    kw_in_abstract_pct = (len(kw_in_abstract) / len(article['keyword_s'])) * 100
-
-                    article['keyword_s'] = kw_in_abstract
-
-                    if kw_in_abstract_pct > 66:
-                        articles.append(article)
-
-            if (count > 30) and (increment < (count)) and ( (increment == 0) or (increment % dpIncrement != 0) ):
+            if (count > 30) and (increment < (count)) and ((increment == 0) or (increment % dpIncrement != 0)):
                 increment += 30
                 tmp_articles = findByFilter(domain, increment, False, dpIncrement)
                 for tmp_article in tmp_articles:
-                    if ('keyword_s' in tmp_article) and ('fr_abstract_s' in tmp_article):
-                        tmp_article['keyword_s'] = [x.lower() for x in tmp_article['keyword_s']]
-                        tmp_article['fr_abstract_s'][0] = tmp_article['fr_abstract_s'][0].lower()
+                    articles.append(tmp_article)
 
-                        kw_in_abstract = [a for a in tmp_article['keyword_s'] if a in tmp_article['fr_abstract_s'][0]]
-                        kw_in_abstract_pct = (len(kw_in_abstract) / len(tmp_article['keyword_s'])) * 100
-
-                        tmp_article['keyword_s'] = kw_in_abstract
-
-                        if kw_in_abstract_pct > 66:
-                            articles.append(tmp_article)
                 return articles
+
             else:
                 return articles
-        else:
-            print('Error : wrong response from the HAL server')
-            return -1
+
     else:
-        print('Error : can not contact HAL API server')
-        return articles
+        print('Error % Wrong response from HAL API')
+        return -1
