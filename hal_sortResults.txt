@@ -1,0 +1,9 @@
+# Cloner la collection puis retirer les documents ne contenant pas les champs nécessaires
+# Ci-dessous exemple en anglais
+
+db.documents_cleaned_en.remove({
+    "$or": [
+        { "en_abstract_s": { "$exists": false } },
+        { "en_keyword_s": { "$exists": false } }
+    ]
+})

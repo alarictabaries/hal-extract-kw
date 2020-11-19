@@ -26,7 +26,7 @@ def computeSimilarity(abstract, keywords, lang, debug):
         keyword_tokenized = nlp(keyword)
         for keyword in keyword_tokenized:
             if keyword.lemma_ not in stopwords.words(stopwords_language) and keyword.lemma_ not in stopwords_homemade:
-                keywords_lemmas.append(keyword.lemma_)
+                keywords_lemmas.append(keyword.lemma_.lower())
 
     if debug:
         print('Current keywords lemmas :', end=' ')
@@ -37,7 +37,7 @@ def computeSimilarity(abstract, keywords, lang, debug):
     abstract_lemmas = []
     for word in abstract_tokenized:
         if word.lemma_ not in stopwords.words(stopwords_language) and word.lemma_ not in stopwords_homemade:
-            abstract_lemmas.append(word.lemma_)
+            abstract_lemmas.append(word.lemma_.lower())
 
     if debug:
         print('Current abstract lemmas :', end=' ')
@@ -77,11 +77,11 @@ def computeSimilarity(abstract, keywords, lang, debug):
 
         # Loop (sub) in abstract
         for word in abstract_lemmas:
-            if debug:
-                print('Current word :', end=' ')
-                print(word)
+            #if debug:
+                #print('Current word :', end=' ')
+                #print(word)
 
-            # If words are similar, set similarity to one and skip
+            # If words are similar, set similarity to 1 and skip
             if word == keyword:
                 max_similarity_tmp = 1
 
@@ -104,6 +104,11 @@ def computeSimilarity(abstract, keywords, lang, debug):
         # Increment each time a keyword fully match another word in the abstract
         if max_similarity_tmp >= 1:
             current_score += 1
+
+    if debug:
+        print('Match details :', end=' ')
+        print(current_score, end=' / ')
+        print(len(keywords_lemmas))
 
     if len(keywords_lemmas) > 0:
         match = current_score / len(keywords_lemmas)

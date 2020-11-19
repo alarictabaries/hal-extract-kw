@@ -3,6 +3,7 @@ from libraries import nlprocessing
 from pprint import pprint
 from bson.objectid import ObjectId
 
+
 # Connect to MongoDB server
 server = pymongo.MongoClient("mongodb://localhost:27017/")
 db = server['hal']

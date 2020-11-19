@@ -1,4 +1,6 @@
 import pymongo
+from libraries import nlprocessing
+
 
 # Connect to MongoDB server
 server = pymongo.MongoClient("mongodb://localhost:27017/")
@@ -6,29 +8,37 @@ db = server['hal']
 
 col = db['docType']
 col.drop()
-
 col = db['primaryDomain']
 col.drop()
-
 col = db['publicationDateY']
 col.drop()
 
-col = db['documents']
+col = db['documents_cleaned_fr']
 
-count_fulfill = 403627
-# { $and: [{"fr_abstract_s": {"$exists": true}}, {"fr_keyword_s": {"$exists": true}}]}
+# n = (2,575)² x (0,5)(1-0,5) / (0,01)² = 16576.5625
+sample_size = 16577
+
+sample = col.aggregate([{"$sample": {"size": 16577}}])
+
+
+
 domains = []
 types = []
 yearlies = []
 
-cursor = col.find({"$and": [{"fr_match": {"$exists": True}}]}, no_cursor_timeout=True).batch_size(100)
-for document in cursor:
+for document in sample:
+    abstract = document['fr_abstract_s'][0]
+    keywords = document['fr_keyword_s']
+
+    # Compute similarity between abstract and keywords
+    document['similarity'] = nlprocessing.computeSimilarity(abstract, keywords, 'fr', True)
 
     count_80 = 0
     count_60 = 0
-    if document['fr_match']['raw_match'] > 0.8:
+
+    if document['similarity']['raw_match'] > 0.8:
         count_80 = 1
-    if document['fr_match']['raw_match'] > 0.6:
+    if document['similarity']['raw_match'] > 0.6:
         count_60 = 1
 
     # Update domain's statistics
@@ -39,20 +49,20 @@ for document in cursor:
             domain['count'] += 1
             domain['raw_match_80'] += count_80
             domain['raw_match_60'] += count_60
-            domain['raw_match'] += document['fr_match']['raw_match']
-            domain['wordnet_similarity'] += document['fr_match']['wordnet_similarity']
-            domain['avg_keywords_unknown'] += document['fr_match']['avg_keywords_unknown']
-            domain['avg_words_unknown'] += document['fr_match']['avg_words_unknown']
+            domain['raw_match'] += document['similarity']['raw_match']
+            domain['wordnet_similarity'] += document['similarity']['wordnet_similarity']
+            domain['avg_keywords_unknown'] += document['similarity']['avg_keywords_unknown']
+            domain['avg_words_unknown'] += document['similarity']['avg_words_unknown']
 
     if not domain_informed:
         domains.append({'primaryDomain': document['primaryDomain_s'],
                         'count': 1,
-                        'raw_match': document['fr_match']['raw_match'],
+                        'raw_match': document['similarity']['raw_match'],
                         'raw_match_80': count_80,
                         'raw_match_60': count_60,
-                        'wordnet_similarity': document['fr_match']['wordnet_similarity'],
-                        'avg_keywords_unknown': document['fr_match']['avg_keywords_unknown'],
-                        'avg_words_unknown': document['fr_match']['avg_words_unknown']
+                        'wordnet_similarity': document['similarity']['wordnet_similarity'],
+                        'avg_keywords_unknown': document['similarity']['avg_keywords_unknown'],
+                        'avg_words_unknown': document['similarity']['avg_words_unknown']
                         })
 
     # Update type's statistics
@@ -63,20 +73,20 @@ for document in cursor:
             type['count'] += 1
             type['raw_match_80'] += count_80
             type['raw_match_60'] += count_60
-            type['raw_match'] += document['fr_match']['raw_match']
-            type['wordnet_similarity'] += document['fr_match']['wordnet_similarity']
-            type['avg_keywords_unknown'] += document['fr_match']['avg_keywords_unknown']
-            type['avg_words_unknown'] += document['fr_match']['avg_words_unknown']
+            type['raw_match'] += document['similarity']['raw_match']
+            type['wordnet_similarity'] += document['similarity']['wordnet_similarity']
+            type['avg_keywords_unknown'] += document['similarity']['avg_keywords_unknown']
+            type['avg_words_unknown'] += document['similarity']['avg_words_unknown']
 
     if not type_informed:
         types.append({'docType': document['docType_s'],
                       'count': 1,
-                      'raw_match': document['fr_match']['raw_match'],
+                      'raw_match': document['similarity']['raw_match'],
                       'raw_match_80': count_80,
                       'raw_match_60': count_60,
-                      'wordnet_similarity': document['fr_match']['wordnet_similarity'],
-                      'avg_keywords_unknown': document['fr_match']['avg_keywords_unknown'],
-                      'avg_words_unknown': document['fr_match']['avg_words_unknown']
+                      'wordnet_similarity': document['similarity']['wordnet_similarity'],
+                      'avg_keywords_unknown': document['similarity']['avg_keywords_unknown'],
+                      'avg_words_unknown': document['similarity']['avg_words_unknown']
                       })
 
     # Update type's statistics
@@ -87,23 +97,21 @@ for document in cursor:
             yearly['count'] += 1
             yearly['raw_match_80'] += count_80
             yearly['raw_match_60'] += count_60
-            yearly['raw_match'] += document['fr_match']['raw_match']
-            yearly['wordnet_similarity'] += document['fr_match']['wordnet_similarity']
-            yearly['avg_keywords_unknown'] += document['fr_match']['avg_keywords_unknown']
-            yearly['avg_words_unknown'] += document['fr_match']['avg_words_unknown']
+            yearly['raw_match'] += document['similarity']['raw_match']
+            yearly['wordnet_similarity'] += document['similarity']['wordnet_similarity']
+            yearly['avg_keywords_unknown'] += document['similarity']['avg_keywords_unknown']
+            yearly['avg_words_unknown'] += document['similarity']['avg_words_unknown']
 
     if not yearly_informed:
         yearlies.append({'publicationDateY': document['publicationDateY_i'],
                       'count': 1,
-                      'raw_match': document['fr_match']['raw_match'],
+                      'raw_match': document['similarity']['raw_match'],
                       'raw_match_80': count_80,
                       'raw_match_60': count_60,
-                      'wordnet_similarity': document['fr_match']['wordnet_similarity'],
-                      'avg_keywords_unknown': document['fr_match']['avg_keywords_unknown'],
-                      'avg_words_unknown': document['fr_match']['avg_words_unknown']
+                      'wordnet_similarity': document['similarity']['wordnet_similarity'],
+                      'avg_keywords_unknown': document['similarity']['avg_keywords_unknown'],
+                      'avg_words_unknown': document['similarity']['avg_words_unknown']
                       })
-
-cursor.close()
 
 for domain in domains:
     domain['lang'] = 'fr'
