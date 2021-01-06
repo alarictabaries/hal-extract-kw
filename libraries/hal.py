@@ -4,7 +4,7 @@ import requests
 def findByFilter(domain, increment, getCount, dpIncrement):
 
     articles = []
-    flags = 'halId_s,*_title_s,*_subTitle_s,*_keyword_s,*_abstract_s,primaryDomain_s,domainAllCode_s,publicationDateY_i,docType_s'
+    flags = 'halId_s,*_title_s,*_subTitle_s,*_keyword_s,*_abstract_s,primaryDomain_s,domainAllCode_s,publicationDateY_i,docType_s,files_s'
 
     filter = False
 

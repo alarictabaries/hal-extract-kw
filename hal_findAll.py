@@ -3,11 +3,12 @@ import threading
 import pymongo
 from datetime import datetime
 
+
 def findAll():
-    count = hal.findByFilter('shs.info', 0, True, 0)
+    count = hal.findByFilter('', 0, True, 0)
     # Set $i value to the amount of documents you've already collected
     # i = 0
-    i = 2478180
+    i = 2177430
 
     # Collect documents and save them to the DB every 12030 documents
     while i < count:
@@ -17,7 +18,7 @@ def findAll():
         # Save documents to mongoDB
         server = pymongo.MongoClient("mongodb://localhost:27017/")
         db = server['hal']
-        col = db['documents_test']
+        col = db['documents_w_files']
         col.insert_many(articles)
         print(datetime.now().strftime("%H:%M:%S") )
         print('Processing...')

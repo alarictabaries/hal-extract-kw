@@ -1,9 +1,12 @@
 # Cloner la collection puis retirer les documents ne contenant pas les champs nécessaires
 # Ci-dessous exemple en anglais
 
-db.documents_cleaned_en.remove({
+db.articles_w_files_cleaned_fr.remove({
     "$or": [
-        { "en_abstract_s": { "$exists": false } },
-        { "en_keyword_s": { "$exists": false } }
+        { "fr_abstract_s": { "$exists": false } },
+        { "fr_keyword_s": { "$exists": false } },
+        { "files_s": { "$exists": false } }
     ]
 })
+
+db.articles_w_files_cleaned_fr.remove({ "docType_s": { $ne : "ART"} })

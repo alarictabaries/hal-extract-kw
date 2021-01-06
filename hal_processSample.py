@@ -6,19 +6,22 @@ from libraries import nlprocessing
 server = pymongo.MongoClient("mongodb://localhost:27017/")
 db = server['hal']
 
-col = db['docType']
-col.drop()
-col = db['primaryDomain']
-col.drop()
-col = db['publicationDateY']
-col.drop()
+bd_del = True
+if bd_del:
+    col = db['docType']
+    col.drop()
+    col = db['primaryDomain']
+    col.drop()
+    col = db['publicationDateY']
+    col.drop()
 
-col = db['documents_cleaned_fr']
+col = db['articles_cleaned_fr']
 
 # n = (2,575)² x (0,5)(1-0,5) / (0,01)² = 16576.5625
-sample_size = 16577
+# n = (2,575)² x (0,5)(1-0,5) / (0,02)² = 4144.140625
+sample_size = 4145
 
-sample = col.aggregate([{"$sample": {"size": 16577}}])
+sample = col.aggregate([{"$sample": {"size": 4145}}])
 
 
 

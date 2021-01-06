@@ -4,8 +4,8 @@ import spacy
 import sys
 
 
-# Compute similarity between the abstract and the keywords
-def computeSimilarity(abstract, keywords, lang, debug):
+# Compute similarity between the fullText and the keywords
+def computeSimilarity(fullText, keywords, lang, debug):
 
     # Update with your stopwords
     stopwords_homemade = ['/', '-PRON-', '-', '=', "n'", '«', '»', "l'", "c'", ':', ',', ';', '.', '!', '?', ';', 'le', 'un', 'se', 'il', 'ce', "d'", 'de', '(', ')', '"', "'"]
@@ -32,26 +32,26 @@ def computeSimilarity(abstract, keywords, lang, debug):
         print('Current keywords lemmas :', end=' ')
         print(keywords_lemmas)
 
-    ## Lemmatize summary
-    abstract_tokenized = nlp(abstract)
-    abstract_lemmas = []
-    for word in abstract_tokenized:
-        if word.lemma_ not in stopwords.words(stopwords_language) and word.lemma_ not in stopwords_homemade:
-            abstract_lemmas.append(word.lemma_.lower())
+    ## Lemmatize keywords
+    fullText_lemmas = []
+    for piece in fullText:
+        piece_tokenized = nlp(piece)
+        for word in piece_tokenized:
+            if word.lemma_ not in stopwords.words(stopwords_language) and word.lemma_ not in stopwords_homemade:
+                fullText_lemmas.append(word.lemma_.lower())
 
     if debug:
-        print('Current abstract lemmas :', end=' ')
-        print(abstract_lemmas)
+        print('Current fullText lemmas :', end=' ')
+        print(fullText_lemmas)
 
     current_score = 0
 
     # Loop in keywords
     for keyword in keywords_lemmas:
-
         max_similarity_tmp = 0
 
-        # Loop (sub) in abstract
-        for word in abstract_lemmas:
+        # Loop (sub) in fullText
+        for word in fullText_lemmas:
 
             # If words are similar, set similarity to 1 and skip
             if word == keyword:
@@ -67,9 +67,9 @@ def computeSimilarity(abstract, keywords, lang, debug):
         match = 0
 
     if debug:
-        print('Abstract text match :', end=' ')
+        print('Full text match :', end=' ')
         print(current_score, end=' / ')
         print(len(keywords_lemmas), end=' ')
         print("(" + str(match) + ")")
 
-    return match
+    return {'raw_match': match}
