@@ -20,7 +20,7 @@ col = db['articles_w_files_cleaned_fr']
 
 # n = (2,575)² x (0,5)(1-0,5) / (0,01)² = 16576.5625
 # n = (2,575)² x (0,5)(1-0,5) / (0,02)² = 4144.140625
-sample_size = 100
+sample_size = 4500
 progress = 0
 
 sample = col.aggregate([{"$sample": {"size": sample_size}}])
@@ -65,7 +65,7 @@ for document in sample:
         abstract = document['fr_abstract_s'][0]
         keywords = document['fr_keyword_s']
 
-        if len(keywords) > 0 or len(fullText_clean) or abstract != "":
+        if len(keywords) > 0 and len(fullText_clean) > 0 and abstract != "":
 
             # Compute similarity between abstract and keywords
             document['abstract_match'] = nlprocessing.computeSimilarity(abstract, keywords, 'fr', True)

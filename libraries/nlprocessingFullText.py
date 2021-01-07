@@ -72,4 +72,4 @@ def computeSimilarity(fullText, keywords, lang, debug):
         print(len(keywords_lemmas), end=' ')
         print("(" + str(match) + ")")
 
-    return {'raw_match': match}
+    return match
